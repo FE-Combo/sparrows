@@ -5,6 +5,7 @@ coverage
 logs
 *.log
 .next/
+dist/
 
 # PWA files
 **/public/sw.js
