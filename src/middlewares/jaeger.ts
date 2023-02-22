@@ -22,8 +22,12 @@ export const middleware = (options: Options) => async ( ctx: ParameterizedContex
         parentSpan
     };
     ctx.set("traceid", traceId);
-    await next();
-    parentSpan.finish();
+    try {
+        await next();
+    } finally {
+        parentSpan.finish();  
+    }
+
 }
 
 interface InitJaeger {
@@ -61,7 +65,7 @@ export function initJaeger(ooptions: InitJaeger, ctx: ParameterizedContext<Defau
     return {jaeger, parentSpan: span, traceId};
 }
 
-// 若存在sub span逻辑必须要在router执行handle之前执行，否则next中拿不到x-b3-traceid
+// Attentions: 在nextjs中使用时，必须在[执行handle函数](https://nextjs.org/docs/advanced-features/custom-server)之前创建 sub span，否则 next 中拿不到x-b3-traceid
 export function createSubSpan (operationName: string,ctx: ParameterizedContext<DefaultState, DefaultContext>){
     const jaeger = ctx.jaeger as JaegerCTX["jaeger"]
     const config = { childOf: jaeger.parentSpan }

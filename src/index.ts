@@ -4,8 +4,6 @@ import Koa from 'koa';
 import context from "./interior/context";
 import portfinder from 'portfinder';
 import onerror from 'koa-onerror';
-import koaStatic from 'koa-static';
-import historyApiFallback from 'koa-history-api-fallback';
 import chalk from 'chalk';
 
 const dev = process.env.NODE_ENV !== 'production'
@@ -30,12 +28,6 @@ async function start() {
   const server = new Koa();
 
   onerror(server, config?.errorOptions);
-
-  server.use(historyApiFallback());
-
-  server.use(koaStatic('./demo')); 
-
-  server.use(koaStatic('./demo/public')); 
 
   server.use(context(server, {...config, port, dev}));
 

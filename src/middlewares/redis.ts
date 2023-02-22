@@ -39,7 +39,7 @@ export const middleware = (options: Options) => async ( ctx: ParameterizedContex
     })(ctx, next);
 }
 
-// 该方法会自动在浏览器上种下cookie，返回的sessionId就是对应浏览器的cookie值。但是当前链路不会立即生效需要发送到客户端后才能生效，所以ctx.cookies.get(sid)拿不到最新值，若在同一链路上更新cookie需要手动将sid存储到ctx上或往下透传
+// 该方法会返回请求头 set-cookie（在浏览器种下cookie），返回的sessionId就是对应浏览器的cookie值。但是当前链路不会立即生效需要发送到客户端后才能生效，所以ctx.cookies.get(sid)拿不到最新值，若在同一链路上更新cookie需要手动将sid存储到ctx上或往下透传
 export const saveSession = async (value: any, ctx: ParameterizedContext<DefaultState, RedisCTX>, key: string = "payload") => {
     try {    
         ctx.session![key] = value;
@@ -50,6 +50,7 @@ export const saveSession = async (value: any, ctx: ParameterizedContext<DefaultS
     }
 }
 
+// sid 与 redis-key 一致，若存在映射关系需要重新封装
 export const removeSession = async (ctx: ParameterizedContext<DefaultState, RedisCTX>)=> {
     try {
         const redis = ctx.redis;
@@ -63,4 +64,14 @@ export const removeSession = async (ctx: ParameterizedContext<DefaultState, Redi
     } catch (error) {
         console.error(error)   
     }
+}
+
+// sid 与 redis-key 一致，若存在映射关系需要重新封装
+export async function getSession(ctx: ParameterizedContext<DefaultState, RedisCTX>) {
+    const redis = ctx.redis;
+    const sidKey: string = redis.sessionOptions.key || "sid";
+    const sid = ctx.cookies.get(sidKey) || "";
+    const session = await redis.redis.get(sid);
+    const sessionJSON = session && JSON.parse(session) || {};
+    return sessionJSON?.payload||"";
 }

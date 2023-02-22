@@ -57,7 +57,6 @@
     "@types/koa-generic-session": "^2.2.1",
     "@types/koa-redis": "^4.0.2",
     "@types/koa-static": "^4.0.2",
-    "axios": "^0.24.0",
     "chalk": "^4.1.2",
     "crypto-js": "^4.1.1",
     "csrf": "^3.1.0",
