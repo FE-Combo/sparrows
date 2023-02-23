@@ -25,7 +25,7 @@ export const middleware = (options?: Options) => async ( ctx: ParameterizedConte
         // api路由
         await compose(apiMiddlewares)(ctx, next)
     } else {
-        // 页面路由
+        // 页面路由与静态资源文件
         await compose(pageMiddlewares)(ctx, next)
     }
 }

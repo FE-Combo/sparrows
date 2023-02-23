@@ -72,7 +72,6 @@
     "koa-onerror": "^4.2.0",
     "koa-redis": "^4.0.1",
     "koa-static": "^5.0.0",
-    "log4js": "^6.4.4",
     "node-apollo": "^1.2.1",
     "opentracing": "^0.14.7",
     "path-to-regexp": "^6.2.0",

@@ -2,9 +2,11 @@
 - 麻雀虽小，五脏俱全；轻量级 KOA 前端服务
 - 充当前端服务或前端网关服务，具备静态资源访问、sesion管理以及调用后端api的能力（调用后端api需要业务测根据加签规则自行封装中间件）。
 ## 特性
-- 丰富的中间件能力，包含sesion管理（依赖redis）、链路追踪（依赖jaeger）、CSRF、Sentry
-- 内置apollo、密钥轮转、log4js等工具库
-- 统一异常处理机制
+- 丰富的中间件能力，包含sesion管理（依赖redis）、链路追踪（依赖jaeger）、CSRF等
+- 丰富的工具函数，包含内置apollo、密钥轮转、log4js等
+- 支持自定义中间件
+- 支持接入Sentry
+- 事件异常处理机制
 
 ## build-in middlewares
 - *context: 存储koa实例、koa.config.js 配置获取
@@ -29,6 +31,8 @@
 - error：捕获应用中间件异常
 
 - cors：跨域处理
+    - origin：允许跨域的来源
+    - credentials：是否在请求的携带cookie
 
 - app: 提供应用健康监测/页面路由/api路由
     - baseRoute：应用前缀
@@ -37,8 +41,14 @@
 
 ## build-in utils
 - apollo: 官方Apollo配置中心
+    - serverUrl：服务地址
+    - appId：项目唯一标识
+    - clusterName：集群名称，默认集群为 default
+    - namespaceName[]：命名空间, 默认命名空间为 application
+
 - 密钥轮转: 更安全的密钥机制
-- log4js: 日志生成工具
+    - redisSecrets：密钥数组字符串
+    - refreshSecrets：更新密钥数组字符串回调函数
 
 ## 压测
 - 一般都采用ab，wrk，siege等工具
@@ -46,7 +56,6 @@
 
 ## 使用
 - 安装：yarn add sparrows --save
-- 开发环境启动：yarn sparrows
 - 启动：yarn sparrows（开发环境与线上环境启动命令相同，通过环境变量 NODE_ENV 区分）
 
 ## 部署
@@ -56,8 +65,7 @@
 ## koa.config.js配置说明（配置入口）
 - middlewares: 中间件列表, 支持自定义中间件满足koa标准即可
 - sentry: [sentry接入参数](https://docs.sentry.io/platforms/node/)
-- errorOptions：处理steam 和事件的异常，[配置参考](https://github.com/koajs/onerror#options)
-
+- errorOptions：处理 steam 和事件的异常，[配置参考](https://github.com/koajs/onerror#options)
 
 ## Attentions
 - 框架本身只提供基础中间件与工具函数，具体api逻辑根据业务自定义。

@@ -14,6 +14,7 @@ export async function getConfig() {
     const config = require(configPath);
     return config;
   } catch (error) {
+    console.error(error)
     return {};
   }
 }
