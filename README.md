@@ -46,8 +46,8 @@
     - clusterName：集群名称，默认集群为 default
     - namespaceName[]：命名空间, 默认命名空间为 application
 
-- 密钥轮转: 更安全的密钥机制
-    - redisSecrets：密钥数组字符串
+- 密钥轮转: 更安全的数据存储机制（用于Redis）
+    - secrets：密钥数组字符串
     - refreshSecrets：更新密钥数组字符串回调函数
 
 ## 压测
