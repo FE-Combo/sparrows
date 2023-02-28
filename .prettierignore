@@ -1,0 +1,10 @@
+node_modules
+.next
+yarn.lock
+package-lock.json
+public
+dep
+dist
+CHANGELOG.md
+bin
+demo

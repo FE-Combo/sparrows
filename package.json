@@ -11,6 +11,9 @@
     "dev:redis": "DEBUG=ioredis:* nodemon",
     "build:lib": "rm -rf ./dist && tsc --project tsconfig.build.json",
     "dep": "sh ./dep/redis.sh && sh ./dep/jaeger.sh",
+    "type-check": "tsc --pretty",
+    "eslint": "eslint --ext .tsx,.ts . --fix",
+    "prettier": "prettier --write .",
     "release": "standard-version",
     "release:beta": "standard-version --prerelease beta",
     "release:alpha": "standard-version --prerelease alpha",
@@ -27,6 +30,19 @@
   "bin": {
     "sparrows": "./bin/sparrows"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "yarn run type-check && yarn build:lib"
+    }
+  },
+  "lint-staged": {
+    "*.@(tsx|ts)": [
+      "yarn eslint",
+      "yarn prettier",
+      "git add"
+    ]
+  },
   "author": "vocoWone",
   "license": "ISC",
   "devDependencies": {
@@ -35,9 +51,15 @@
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.11",
     "@types/uuid": "^8.3.4",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
     "cookie-signature": "^1.2.0",
     "cross-env": "^7.0.3",
+    "eslint": "^8.35.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.1.2",
     "nodemon": "^2.0.15",
+    "prettier": "^2.8.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "sass": "^1.49.0",

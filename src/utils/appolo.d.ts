@@ -1,1 +1,1 @@
-declare module 'node-apollo'
+declare module "node-apollo";

@@ -1,20 +1,20 @@
 /// <reference path="./type.d.ts" />
 
-import Koa from 'koa';
+import Koa from "koa";
 import context from "./interior/context";
-import portfinder from 'portfinder';
-import onerror from 'koa-onerror';
-import chalk from 'chalk';
+import portfinder from "portfinder";
+import onerror from "koa-onerror";
+import chalk from "chalk";
 
-const dev = process.env.NODE_ENV !== 'production'
+const dev = process.env.NODE_ENV !== "production";
 
 export async function getConfig() {
-  const configPath = process.cwd() + '/koa.config.js';
+  const configPath = process.cwd() + "/koa.config.js";
   try {
     const config = require(configPath);
     return config;
   } catch (error) {
-    console.error(error)
+    console.error(error);
     return {};
   }
 }
@@ -30,7 +30,7 @@ async function start() {
 
   onerror(server, config?.errorOptions);
 
-  server.use(context(server, {...config, port, dev}));
+  server.use(context(server, { ...config, port, dev }));
 
   portfinder.getPort(function (error, nextPort) {
     if (error) {
@@ -38,11 +38,19 @@ async function start() {
       return;
     }
     if (port !== nextPort) {
-      console.info(`${chalk.yellow('warn')}  - Port ${port} is in use, trying ${nextPort} instead.`);
+      console.info(
+        `${chalk.yellow(
+          "warn"
+        )}  - Port ${port} is in use, trying ${nextPort} instead.`
+      );
     }
     process.env.PORT = nextPort.toString();
     server.listen(nextPort, () =>
-      console.info(`${chalk.green('ready')} - started server on 0.0.0.0:${nextPort}, url: http://localhost:${nextPort}`)
+      console.info(
+        `${chalk.green(
+          "ready"
+        )} - started server on 0.0.0.0:${nextPort}, url: http://localhost:${nextPort}`
+      )
     );
   });
 }

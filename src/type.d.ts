@@ -1,2 +1,2 @@
-declare module 'koa-onerror';
-declare module 'koa-history-api-fallback'
+declare module "koa-onerror";
+declare module "koa-history-api-fallback";

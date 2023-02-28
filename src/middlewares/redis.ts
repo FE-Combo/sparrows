@@ -1,77 +1,96 @@
-import {ParameterizedContext, DefaultState, Next, DefaultContext} from "koa";
+import { ParameterizedContext, DefaultState, Next, DefaultContext } from "koa";
 import Redis from "ioredis";
 import redisStore from "koa-redis";
-import RedLock, {Settings} from "redlock";
-import session, {SessionStore, SessionOptions} from "koa-generic-session";
+import RedLock, { Settings } from "redlock";
+import session, { SessionStore, SessionOptions } from "koa-generic-session";
 
 export interface RedisCTX extends DefaultContext {
-    redis: KoaRedis
+  redis: KoaRedis;
 }
 
 export interface KoaRedis extends Options {
-    redis: Redis.Redis,
-    redlock: RedLock,
+  redis: Redis.Redis;
+  redlock: RedLock;
 }
 
 export interface Options {
-    redisOptions: Redis.RedisOptions
-    sessionOptions: SessionOptions
-    redlockSettings?: Settings
+  redisOptions: Redis.RedisOptions;
+  sessionOptions: SessionOptions;
+  redlockSettings?: Settings;
 }
 
 let redis: Redis.Redis | null = null;
 
 let redlock: RedLock | null = null;
 
-export const middleware = (options: Options) => async ( ctx: ParameterizedContext<DefaultState, RedisCTX>, next: Next) => {
-    const {redisOptions, sessionOptions, redlockSettings} = options;
-    if(!redis) {
-        redis = new Redis(redisOptions);
+export const middleware =
+  (options: Options) =>
+  async (ctx: ParameterizedContext<DefaultState, RedisCTX>, next: Next) => {
+    const { redisOptions, sessionOptions, redlockSettings } = options;
+    if (!redis) {
+      redis = new Redis(redisOptions);
     }
-    if(!redlock) {
-        redlock = new RedLock([redis], redlockSettings || {})
+    if (!redlock) {
+      redlock = new RedLock([redis], redlockSettings || {});
     }
 
-    ctx.redis = { redis,redlock, redisOptions, sessionOptions, redlockSettings }
+    ctx.redis = {
+      redis,
+      redlock,
+      redisOptions,
+      sessionOptions,
+      redlockSettings,
+    };
     await session({
-        store: redisStore((redisOptions || {}) as redisStore.RedisOptions) as unknown as SessionStore,
-    ...sessionOptions
+      store: redisStore(
+        (redisOptions || {}) as redisStore.RedisOptions
+      ) as unknown as SessionStore,
+      ...sessionOptions,
     })(ctx, next);
-}
+  };
 
 // 该方法会返回请求头 set-cookie（在浏览器种下cookie），返回的sessionId就是对应浏览器的cookie值。但是当前链路不会立即生效需要发送到客户端后才能生效，所以ctx.cookies.get(sid)拿不到最新值，若在同一链路上更新cookie需要手动将sid存储到ctx上或往下透传
-export const saveSession = async (value: any, ctx: ParameterizedContext<DefaultState, RedisCTX>, key: string = "payload") => {
-    try {    
-        ctx.session![key] = value;
-        if(ctx?.saveSession) await ctx.saveSession();
-        return ctx.sessionId;
-    } catch (error) {
-        console.error(error);
-    }
-}
+export const saveSession = async (
+  // eslint-disable-next-line
+  value: any,
+  ctx: ParameterizedContext<DefaultState, RedisCTX>,
+  key: string = "payload"
+) => {
+  try {
+    ctx.session![key] = value;
+    if (ctx?.saveSession) await ctx.saveSession();
+    return ctx.sessionId;
+  } catch (error) {
+    console.error(error);
+  }
+};
 
 // sid 与 redis-key 一致，若存在映射关系需要重新封装
-export const removeSession = async (ctx: ParameterizedContext<DefaultState, RedisCTX>)=> {
-    try {
-        const redis = ctx.redis;
-        const sidKey: string = redis.sessionOptions.key || 'sid';
-        const key = ctx.cookies.get(sidKey);
-        if(key) {
-            ctx.session = null;
-            await redis.redis.del(key)
-            ctx.cookies.set(sidKey, null, { expires: new Date(0) })
-        }
-    } catch (error) {
-        console.error(error)   
-    }
-}
-
-// sid 与 redis-key 一致，若存在映射关系需要重新封装
-export async function getSession(ctx: ParameterizedContext<DefaultState, RedisCTX>) {
+export const removeSession = async (
+  ctx: ParameterizedContext<DefaultState, RedisCTX>
+) => {
+  try {
     const redis = ctx.redis;
     const sidKey: string = redis.sessionOptions.key || "sid";
-    const sid = ctx.cookies.get(sidKey) || "";
-    const session = await redis.redis.get(sid);
-    const sessionJSON = session && JSON.parse(session) || {};
-    return sessionJSON?.payload||"";
+    const key = ctx.cookies.get(sidKey);
+    if (key) {
+      ctx.session = null;
+      await redis.redis.del(key);
+      ctx.cookies.set(sidKey, null, { expires: new Date(0) });
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+// sid 与 redis-key 一致，若存在映射关系需要重新封装
+export async function getSession(
+  ctx: ParameterizedContext<DefaultState, RedisCTX>
+) {
+  const redis = ctx.redis;
+  const sidKey: string = redis.sessionOptions.key || "sid";
+  const sid = ctx.cookies.get(sidKey) || "";
+  const session = await redis.redis.get(sid);
+  const sessionJSON = (session && JSON.parse(session)) || {};
+  return sessionJSON?.payload || "";
 }
