@@ -16,6 +16,8 @@ export interface Options {
   // eslint-disable-next-line
   apiMiddlewares?: Middleware<any, any>[];
   // eslint-disable-next-line
+  innerApiMiddlewares?: Middleware<any, any>[];
+  // eslint-disable-next-line
   pageMiddlewares?: Middleware<any, any>[];
 }
 
@@ -30,9 +32,12 @@ export const middleware =
       baseRoute: optionBaseRoute,
       apiMiddlewares = [],
       pageMiddlewares = [],
+      innerApiMiddlewares = []
     } = options || {};
+    const nextBaseRoute = optionBaseRoute || baseRoute;
+    
     if (
-      ctx.path === `${optionBaseRoute || baseRoute || ""}/health` &&
+      ctx.path === `${nextBaseRoute}/health` &&
       ctx.method === "GET"
     ) {
       // 健康监测
@@ -40,9 +45,12 @@ export const middleware =
       res.writeHead(200, { "Content-type": "text/html" });
       res.end("ok");
       ctx.respond = false;
-    } else if (/^\/api\/.*/.test(ctx.path)) {
+    } else if (new RegExp(`^${nextBaseRoute}\/api\/.*`).test(ctx.path)) {
       // api路由
       await compose(apiMiddlewares)(ctx, next);
+    } else if (new RegExp(`^${nextBaseRoute}\/\_api\/.*`).test(ctx.path)) {
+      // 内置api路由
+      await compose(innerApiMiddlewares)(ctx, next);
     } else {
       // 页面路由与静态资源文件
       await compose(pageMiddlewares)(ctx, next);

@@ -14,7 +14,7 @@ export async function getConfig() {
     const config = require(configPath);
     return config;
   } catch (error) {
-    console.error(error);
+    console.error("Fetch Config Error: ", error);
     return {};
   }
 }
@@ -28,6 +28,9 @@ async function start() {
 
   const server = new Koa();
 
+  // TODO: 集成 koa-error，去除 error 中间件
+  
+  // 处理 steam 和事件的异常
   onerror(server, config?.errorOptions);
 
   server.use(context(server, { ...config, port, dev }));

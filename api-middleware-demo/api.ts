@@ -10,6 +10,8 @@ import Crypto from "../src/utils/crypto";
 
 // demo：简单的api中间件
 
+const baseRoute = process.env.BASE_ROUTE || "";
+
 export interface Options {
   redisSecrets: string;
   cookieSecret: string;
@@ -31,7 +33,7 @@ export const middleware =
 
     if (options) {
       ctx.api = options;
-      if (/\/api\/.*/.test(ctx.path)) {
+      if (new RegExp(`^${baseRoute}\/api\/.*`).test(ctx.path)) {
         span.setTag("api", true);
         const {
           whitelist = [],
@@ -105,8 +107,8 @@ function createExistMiddlewaresLogs(
     if (ctx.redis) {
       const { redisOptions, sessionOptions } = ctx.redis;
       const span = createSubSpan("redis", ctx);
-      span.setTag("host", redisOptions.host);
-      span.setTag("port", redisOptions.port);
+      span.setTag("host", redisOptions?.host);
+      span.setTag("port", redisOptions?.port);
       span.setTag("sessionOptions", sessionOptions);
       span.finish();
     }
@@ -147,6 +149,6 @@ export const removeSession = async (
       ctx.cookies.set(sidKey, null, { expires: new Date(0) });
     }
   } catch (error) {
-    console.error(error);
+    console.error("Remove Session Error: ", error);
   }
 };

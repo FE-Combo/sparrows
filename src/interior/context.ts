@@ -38,7 +38,7 @@ const context =
               });
               NodeSentry.captureException(error);
             });
-            console.error(error);
+            console.error("Sentry Error: ", error);
           }
         };
       }

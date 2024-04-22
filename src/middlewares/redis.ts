@@ -96,7 +96,7 @@ export const saveSession = async (
     if (ctx?.saveSession) await ctx.saveSession();
     return ctx.sessionId;
   } catch (error) {
-    console.error(error);
+    console.error("Save Session Error: ", error);
   }
 };
 
@@ -114,7 +114,7 @@ export const removeSession = async (
       ctx.cookies.set(sidKey, null, { expires: new Date(0) });
     }
   } catch (error) {
-    console.error(error);
+    console.error("Remove Session Error: ", error);
   }
 };
 
