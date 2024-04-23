@@ -3,6 +3,7 @@
 import Koa from "koa";
 import context from "./interior/context";
 import portfinder from "portfinder";
+import koaError from "koa-error";
 import onerror from "koa-onerror";
 import chalk from "chalk";
 
@@ -14,7 +15,7 @@ export async function getConfig() {
     const config = require(configPath);
     return config;
   } catch (error) {
-    console.error("Fetch Config Error: ", error);
+    console.error(error);
     return {};
   }
 }
@@ -28,10 +29,15 @@ async function start() {
 
   const server = new Koa();
 
-  // TODO: 集成 koa-error，去除 error 中间件
+  if(config?.onErrorOptions) {
+    onerror(server, config.onErrorOptions);
+  }
   
+
+  if(config?.koaErrorOptions) {
   // 处理 steam 和事件的异常
-  onerror(server, config?.errorOptions);
+  server.use(koaError(config.koaErrorOptions));
+  }
 
   server.use(context(server, { ...config, port, dev }));
 

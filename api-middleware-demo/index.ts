@@ -11,10 +11,19 @@ import {
   middleware as proxyMiddleware,
   Options as ProxyOptons,
 } from "../src/middlewares/proxy";
-import { middleware as errorMiddleware } from "../src/middlewares/error";
 import historyApiFallback from "koa-history-api-fallback";
 import bodyparser from "koa-bodyparser";
 import koaStatic from "koa-static";
+import Koa from "koa";
+
+interface OnErrorOptions {
+  accepts?: ()=> boolean;
+  all?:(error:Error,ctx: Koa.Context)=>void;
+  text?:(error:Error,ctx: Koa.Context)=> void;
+  json?:(error:Error,ctx: Koa.Context)=>void;
+  html?:(error:Error,ctx: Koa.Context)=>void;
+  redirect?:string;
+}
 
 interface JaegerOptions {
   endpoint: string;
@@ -64,12 +73,21 @@ export const withDemo = (config: ApiConfig) => {
   };
 
   const appMiddlewares = [
-    errorMiddleware(),
     corsMiddleware(),
     appMiddleware(appMiddlewareOptions),
   ];
   return {
+    onErrorOptions: {
+      all(error, ctx) {
+          console.error("onerror: ", ctx.path, error)
+          ctx.body = error.message               
+      }
+  } as OnErrorOptions,
+  koaErrorOptions: {
+      accepts: ["json"],
+  },
     middlewares: appMiddlewares,
+    
     ...restConfig,
   };
 };

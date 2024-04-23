@@ -38,6 +38,14 @@ export const middleware =
     const { redisOptions, sessionOptions, redlockSettings } = options;
     if (!redis) {
       redis = new Redis(redisOptions);
+
+      redis.once('connect', () => {
+        console.info('Successfully connected to the Redis server.');
+      });
+      
+      redis.once('error', (err) => {
+        console.error('Error connecting to Redis:', err);
+      });
     }
     if (!redlock) {
       redlock = new RedLock([redis], redlockSettings || {});
@@ -63,6 +71,14 @@ export const middleware =
     const { clusterNodes, clusterOptions, redlockSettings, sessionOptions } = options;
     if (!clusterRedis) {
       clusterRedis = new Redis.Cluster(clusterNodes, clusterOptions);
+
+      clusterRedis.once('connect', () => {
+        console.info('Successfully connected to the Cluster Redis server.');
+      });
+      
+      clusterRedis.once('error', (err) => {
+        console.error('Error connecting to Cluster Redis:', err);
+      });
     }
     if (!redlock) {
       redlock = new RedLock([clusterRedis], redlockSettings || {});
