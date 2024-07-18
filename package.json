@@ -69,8 +69,6 @@
     "uuid": "^8.3.2"
   },
   "dependencies": {
-    "@sentry/node": "^6.19.6",
-    "@sentry/tracing": "^6.19.6",
     "@types/crypto-js": "^4.1.0",
     "@types/ioredis": "^4.28.7",
     "@types/jaeger-client": "^3.18.3",

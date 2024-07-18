@@ -33,10 +33,9 @@ async function start() {
     onerror(server, config.onErrorOptions);
   }
   
-
   if(config?.koaErrorOptions) {
-  // 处理 steam 和事件的异常
-  server.use(koaError(config.koaErrorOptions));
+    // 处理 steam 和事件的异常
+    server.use(koaError(config.koaErrorOptions));
   }
 
   server.use(context(server, { ...config, port, dev }));

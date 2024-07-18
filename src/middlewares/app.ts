@@ -34,7 +34,7 @@ export const middleware =
       pageMiddlewares = [],
       innerApiMiddlewares = []
     } = options || {};
-    const nextBaseRoute = optionBaseRoute || baseRoute;
+    const nextBaseRoute = optionBaseRoute || baseRoute || "";
     
     if (
       ctx.path === `${nextBaseRoute}/health` &&
